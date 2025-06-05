@@ -1,0 +1,15 @@
+.footer {
+  background-color: #f8f8f8;
+  padding: 20px 40px;
+  text-align: center;
+  color: #444;
+  border-top: 1px solid #e0e0e0;
+  margin-top: 40px;
+  font-size: 16px;
+}
+
+.footer h1 {
+  font-size: 20px;
+  margin: 0;
+  color: #333;
+}
