@@ -159,7 +159,7 @@ const Box = () => {
         </span> */}
       </div>
 
-      <div className="container">
+      <div className="container ml-24">
         {filteredList && filteredList.length > 0 ? (
           filteredList.map((item) => (
             <Link
