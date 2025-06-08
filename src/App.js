@@ -10,6 +10,7 @@ import Error from "./components/Error";
 import Menu from "./components/Menu";
 import Cart from "./components/Cart";
 import ShimmerCard from "./components/ShimmerCard";
+import Login from "./components/Login";
 // import Grocery from "./components/Grocery";
 
 /*
@@ -64,6 +65,10 @@ const appRoutes = createBrowserRouter([
             <Grocery />
           </Suspense>
         ),
+      },
+      {
+        path: "/login",
+        Component: Login,
       },
       {
         path: "/restaurants/:resId",

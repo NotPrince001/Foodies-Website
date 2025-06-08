@@ -28,6 +28,7 @@ const Header = () => {
           <span className="cart-badge">3</span>{" "}
           {/* you can dynamically bind cart count */}
         </NavLink>
+        <NavLink to={"/login"}>Login</NavLink>
       </div>
     </nav>
   );
