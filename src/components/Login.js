@@ -1,26 +1,41 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { useNavigate } from "react-router";
+import { LoginContext } from "../context/LoginContext";
+import Popup from "reactjs-popup";
+import "reactjs-popup/dist/index.css";
 
 const Login = () => {
   const [focusedField, setFocusedField] = useState(null);
   const [isLogin, setIsLogin] = useState(true);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+
+  const loginContext = useContext(LoginContext);
+  const navigate = useNavigate();
 
   const handleSubmit = () => {
     if (isLogin) {
-      // console.log("Login");
-      //console.log(document.getElementById("username").value);
-      //console.log(document.getElementById("password").value);.
       const username = document.getElementById("username").value;
       const password = document.getElementById("password").value;
       const userDetails = JSON.parse(localStorage.getItem(username));
       console.log(userDetails);
-      if (password === userDetails.password) {
-        alert("Logged in successfully.");
-        window.location.replace("/");
+
+      if (userDetails && password === userDetails.password) {
+        loginContext.setIsLoggedIn(true);
+        setPopupMessage("Login Successful! Welcome back!");
+        setShowSuccessPopup(true);
+
+        // Navigate after a delay to show the popup
+        setTimeout(() => {
+          setShowSuccessPopup(false);
+          navigate("/");
+        }, 2000);
       } else {
-        alert("Incorrect username or password.");
+        setPopupMessage("Incorrect username or password.");
+        setShowErrorPopup(true);
       }
     } else {
-      // console.log("Signup");
       const fullName = document.getElementById("fullname").value;
       const email = document.getElementById("email").value;
       const phone = document.getElementById("phone").value;
@@ -29,12 +44,26 @@ const Login = () => {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
       if (emailRegex.test(email) === false) {
-        alert("Please enter valid email");
+        setPopupMessage("Please enter a valid email address");
+        setShowErrorPopup(true);
         return;
       }
 
       if (password.length < 8) {
-        alert("Password must have 8 length");
+        setPopupMessage("Password must be at least 8 characters long");
+        setShowErrorPopup(true);
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setPopupMessage("Passwords do not match");
+        setShowErrorPopup(true);
+        return;
+      }
+
+      if (localStorage.getItem(email)) {
+        setPopupMessage("User already exists with this email");
+        setShowErrorPopup(true);
         return;
       }
 
@@ -45,16 +74,92 @@ const Login = () => {
         password: password,
       };
 
-      if (password === confirmPassword && !localStorage.getItem(email))
-        localStorage.setItem(email, JSON.stringify(userDetails));
-      else {
-        alert("Password must match");
-        return;
-      }
+      localStorage.setItem(email, JSON.stringify(userDetails));
+      setPopupMessage("Sign up successful! You can now login.");
+      setShowSuccessPopup(true);
 
-      alert("Sign up successfully.");
+      // Switch to login mode after successful signup
+      setTimeout(() => {
+        setShowSuccessPopup(false);
+        setIsLogin(true);
+      }, 2000);
     }
   };
+
+  // Custom popup component for success
+  const SuccessPopup = () => (
+    <Popup
+      open={showSuccessPopup}
+      onClose={() => setShowSuccessPopup(false)}
+      modal
+      nested
+    >
+      <div className="bg-white rounded-xl p-6 text-center shadow-2xl max-w-sm mx-auto">
+        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg
+            className="w-8 h-8 text-green-500"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+        </div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">Success!</h3>
+        <p className="text-gray-600 mb-4">{popupMessage}</p>
+        <button
+          onClick={() => {
+            setShowSuccessPopup(false);
+            if (isLogin) navigate("/");
+          }}
+          className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+        >
+          Continue
+        </button>
+      </div>
+    </Popup>
+  );
+
+  // Custom popup component for errors
+  const ErrorPopup = () => (
+    <Popup
+      open={showErrorPopup}
+      onClose={() => setShowErrorPopup(false)}
+      modal
+      nested
+    >
+      <div className="bg-white rounded-xl p-6 text-center shadow-2xl max-w-sm mx-auto">
+        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg
+            className="w-8 h-8 text-red-500"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">Error</h3>
+        <p className="text-gray-600 mb-4">{popupMessage}</p>
+        <button
+          onClick={() => setShowErrorPopup(false)}
+          className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+        >
+          Try Again
+        </button>
+      </div>
+    </Popup>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-900 via-red-900 to-pink-900 flex items-center justify-center p-4">
@@ -351,6 +456,10 @@ const Login = () => {
           </p>
         </div>
       </div>
+
+      {/* Popup Components */}
+      <SuccessPopup />
+      <ErrorPopup />
     </div>
   );
 };

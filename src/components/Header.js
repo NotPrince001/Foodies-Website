@@ -2,9 +2,18 @@ import { NavLink } from "react-router";
 import { FaShoppingCart } from "react-icons/fa"; // cart icon
 import "../styles/Header.css";
 import useOnlineStatus from "../utils/useOnlineStatus";
+import { useContext } from "react";
+import { LoginContext } from "../context/LoginContext";
 
 const Header = () => {
   const onlineStatus = useOnlineStatus();
+  const { isLoggedIn, setIsLoggedIn } = useContext(LoginContext);
+
+  const handleLogout = () => {
+    if (isLoggedIn) {
+      setIsLoggedIn(false);
+    }
+  };
 
   return (
     <nav className="header">
@@ -25,10 +34,16 @@ const Header = () => {
         <NavLink to={"/cart"} className="cart-link">
           <FaShoppingCart className="cart-icon" />
           <span className="cart-text">Cart</span>
-          <span className="cart-badge">3</span>{" "}
-          {/* you can dynamically bind cart count */}
+          <span className="cart-badge">3</span>
         </NavLink>
-        <NavLink to={"/login"}>Login</NavLink>
+
+        {isLoggedIn ? (
+          <NavLink to="/" onClick={handleLogout}>
+            Logout
+          </NavLink>
+        ) : (
+          <NavLink to="/login">Login</NavLink>
+        )}
       </div>
     </nav>
   );

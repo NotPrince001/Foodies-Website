@@ -1,6 +1,11 @@
 import React, { lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider, Outlet } from "react-router";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Outlet,
+  useLocation,
+} from "react-router";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Box from "./components/Box";
@@ -11,6 +16,7 @@ import Menu from "./components/Menu";
 import Cart from "./components/Cart";
 import ShimmerCard from "./components/ShimmerCard";
 import Login from "./components/Login";
+import LoginContextProvider from "./context/LoginContext.js";
 
 // import Grocery from "./components/Grocery";
 
@@ -29,12 +35,17 @@ Footer
 const Grocery = lazy(() => import("./components/Grocery"));
 
 const App = () => {
+  const location = useLocation();
+  const hideHeaderRoutes = ["/login"];
+  const shouldShowHeader = !hideHeaderRoutes.includes(location.pathname);
   return (
-    <div>
-      <Header />
-      <Outlet />
-      <Footer />
-    </div>
+    <LoginContextProvider>
+      <div>
+        {shouldShowHeader && <Header />}
+        <Outlet />
+        {shouldShowHeader && <Footer />}
+      </div>
+    </LoginContextProvider>
   );
 };
 
